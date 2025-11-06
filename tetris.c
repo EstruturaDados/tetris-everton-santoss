@@ -39,6 +39,8 @@ Peca pop(Pilha *pilha);
 void mostrarFila(Fila *f);
 void mostrarPilha(Pilha *pilha);
 Peca gerarPeca(int id);
+void trocarFrenteComTopo(Fila *f, Pilha *pilha);
+void trocarTresComTres(Fila *f, Pilha *pilha);
 
 // ======== Função principal ========
 int main() {
@@ -57,13 +59,15 @@ int main() {
     }
 
     do {
-        printf("\n===== SISTEMA DE PECAS =====\n");
+        printf("\n===== SISTEMA DE PECAS - NIVEL MESTRE =====\n");
         mostrarFila(&fila);
         mostrarPilha(&pilha);
 
         printf("\n1 - Jogar peca (remover da frente)");
         printf("\n2 - Enviar peca da fila para a reserva (pilha)");
         printf("\n3 - Usar peca da reserva (remover do topo)");
+        printf("\n4 - Trocar peca da frente com topo da pilha");
+        printf("\n5 - Trocar 3 primeiros da fila com as 3 da pilha");
         printf("\n0 - Sair");
         printf("\nEscolha: ");
         scanf("%d", &opcao);
@@ -102,6 +106,14 @@ int main() {
                 } else {
                     printf("\nReserva vazia!\n");
                 }
+                break;
+
+            case 4:
+                trocarFrenteComTopo(&fila, &pilha);
+                break;
+
+            case 5:
+                trocarTresComTres(&fila, &pilha);
                 break;
 
             case 0:
@@ -220,4 +232,51 @@ Peca gerarPeca(int id) {
     nova.tipo = 'A' + (rand() % 5); // tipos A até E
     nova.id = id;
     return nova;
+}
+
+// ======== Funções Avançadas - Nível Mestre ========
+
+// Troca a peça da frente da fila com o topo da pilha
+void trocarFrenteComTopo(Fila *f, Pilha *pilha) {
+    if (filaVazia(f)) {
+        printf("\nNao ha pecas na fila para trocar!\n");
+        return;
+    }
+    if (pilhaVazia(pilha)) {
+        printf("\nNao ha pecas na reserva para trocar!\n");
+        return;
+    }
+
+    int idxFila = f->inicio;
+    int idxPilha = pilha->topo;
+
+    Peca temp = f->pecas[idxFila];
+    f->pecas[idxFila] = pilha->pecas[idxPilha];
+    pilha->pecas[idxPilha] = temp;
+
+    printf("\nTrocou a peca da frente da fila (ID:%d) com o topo da pilha (ID:%d)\n",
+           pilha->pecas[idxPilha].id, f->pecas[idxFila].id);
+}
+
+// Troca os 3 primeiros da fila com as 3 peças da pilha
+void trocarTresComTres(Fila *f, Pilha *pilha) {
+    if (pilha->topo != 2) {
+        printf("\nA pilha deve ter exatamente 3 pecas para realizar a troca!\n");
+        return;
+    }
+    if (f->quantidade < 3) {
+        printf("\nA fila precisa ter pelo menos 3 pecas para realizar a troca!\n");
+        return;
+    }
+
+    for (int i = 0; i < 3; i++) {
+        int idxFila = (f->inicio + i) % TAM_FILA;
+        int idxPilha = pilha->topo - i;
+
+        Peca temp = f->pecas[idxFila];
+        f->pecas[idxFila] = pilha->pecas[idxPilha];
+        pilha->pecas[idxPilha] = temp;
+    }
+
+    printf("\nTrocou as 3 primeiras pecas da fila com as 3 da pilha!\n");
 }
